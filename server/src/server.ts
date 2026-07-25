@@ -1,11 +1,18 @@
+import { createRequire } from "node:module";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import express from "express";
-import helmet from "helmet";
+import express, { type RequestHandler } from "express";
 import { connectDb } from "./config/db.js";
 import { env } from "./config/env.js";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler.js";
 import { apiRouter } from "./routes/index.js";
+
+// helmet's package.json "exports" map resolves differently across pnpm versions under
+// TS's NodeNext module resolution, which can pick a declaration file TS reads as
+// non-callable (works locally, fails on Vercel's pnpm). Loading it via require sidesteps
+// that type resolution entirely — the runtime behavior is identical either way.
+const require = createRequire(import.meta.url);
+const helmet: (options?: Record<string, unknown>) => RequestHandler = require("helmet");
 
 const app = express();
 
