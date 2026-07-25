@@ -3,6 +3,9 @@
 @tailwind utilities;
 
 :root {
+  --navbar-height: 100px;
+  --navbar-height-scrolled: 84px;
+
   --brand-primary: #c12a37;
   --brand-primary-hover: #9e1f2a;
   --brand-primary-active: #7b151f;
@@ -53,6 +56,29 @@ body {
     radial-gradient(circle at 50% 100%, rgba(59, 130, 246, 0.08), transparent 50%),
     radial-gradient(circle, rgba(193, 42, 55, 0.14) 1.5px, transparent 1.5px);
   background-size: auto, auto, auto, 28px 28px;
+}
+
+/*
+ * Hero-only backdrop: a security-print "guilloché" crosshatch — the fine
+ * woven line texture printed on tickets/currency/certificates to signal
+ * authenticity — layered with soft brand-color blooms. Reinforces the
+ * admission-ticket motif instead of a generic blurred-gradient hero.
+ */
+.hero-pattern {
+  background-image:
+    radial-gradient(circle at 10% 10%, rgba(193, 42, 55, 0.15), transparent 42%),
+    radial-gradient(circle at 92% 8%, rgba(59, 130, 246, 0.1), transparent 38%),
+    radial-gradient(circle at 50% 100%, rgba(193, 42, 55, 0.08), transparent 55%),
+    repeating-linear-gradient(45deg, rgba(193, 42, 55, 0.06) 0 1px, transparent 1px 16px),
+    repeating-linear-gradient(-45deg, rgba(193, 42, 55, 0.06) 0 1px, transparent 1px 16px),
+    radial-gradient(circle, rgba(193, 42, 55, 0.18) 1px, transparent 1px);
+  background-size:
+    auto,
+    auto,
+    auto,
+    auto,
+    auto,
+    22px 22px;
 }
 
 .hero-badge {

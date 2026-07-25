@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { adminLogin } from "../../api/admin.ts";
 import { ApiError } from "../../api/client.ts";
-import { PageContainer } from "../../components/PageContainer.tsx";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -30,7 +29,7 @@ export function AdminLogin() {
   }
 
   return (
-    <PageContainer>
+    <div className="mx-auto max-w-5xl px-4 py-8">
       <Card className="mx-auto max-w-sm">
         <CardHeader>
           <CardTitle className="text-xl font-semibold text-foreground">Admin Login</CardTitle>
@@ -58,6 +57,6 @@ export function AdminLogin() {
           </form>
         </CardContent>
       </Card>
-    </PageContainer>
+    </div>
   );
 }

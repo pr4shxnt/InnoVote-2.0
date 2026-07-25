@@ -101,6 +101,15 @@ export default {
       boxShadow: {
         "focus-ring": "0 0 0 3px rgba(193, 42, 55, 0.4)",
       },
+      keyframes: {
+        marquee: {
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-50%)" },
+        },
+      },
+      animation: {
+        marquee: "marquee 30s linear infinite",
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],
