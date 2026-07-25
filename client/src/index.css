@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand-primary: #c12a37;
+  --brand-primary-hover: #9e1f2a;
+  --brand-primary-active: #7b151f;
+  --brand-primary-light: #fff0f2;
+  --brand-primary-glow: rgba(193, 42, 55, 0.35);
+
+  --status-success: #10b981;
+  --status-warning: #f59e0b;
+  --status-error: #dc2626;
+  --status-info: #3b82f6;
+
+  /* Dark mode is the default app surface */
+  --bg-app: #0d0e12;
+  --bg-card: #16181e;
+  --bg-elevated: #1f222b;
+  --border-card: #2e3340;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-tertiary: #64748b;
+}
+
+:root[data-theme="light"],
+html:not(.dark) {
+  --bg-app: #fafafb;
+  --bg-card: #ffffff;
+  --bg-elevated: #f1f5f9;
+  --border-card: #e2e8f0;
+  --text-main: #0f172a;
+  --text-muted: #475569;
+  --text-tertiary: #94a3b8;
+}
+
+body {
+  background: var(--bg-app);
+  color: var(--text-main);
+}
+
+.glass-panel {
+  background: rgba(22, 24, 30, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(193, 42, 55, 0.2);
+}
+
+.hero-backdrop {
+  background-image:
+    radial-gradient(circle at 15% 20%, rgba(193, 42, 55, 0.16), transparent 45%),
+    radial-gradient(circle at 85% 10%, rgba(193, 42, 55, 0.12), transparent 40%),
+    radial-gradient(circle at 50% 100%, rgba(59, 130, 246, 0.08), transparent 50%),
+    radial-gradient(circle, rgba(193, 42, 55, 0.14) 1.5px, transparent 1.5px);
+  background-size: auto, auto, auto, 28px 28px;
+}
+
+.hero-badge {
+  background: rgba(193, 42, 55, 0.08);
+  border: 1px solid rgba(193, 42, 55, 0.25);
+  color: var(--brand-primary);
+}
+
