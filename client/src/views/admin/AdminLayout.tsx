@@ -140,28 +140,32 @@ export function AdminLayout({
           </Button>
         </header>
 
-        {mobileNavOpen && (
-          <div className="fixed inset-0 z-50 sm:hidden">
-            <div
-              className="absolute inset-0 bg-black/50"
-              onClick={() => setMobileNavOpen(false)}
-            />
-            <div className="absolute left-0 top-0 flex h-full w-64 flex-col bg-sidebar shadow-xl">
-              <div className="flex items-center justify-between px-4 py-4">
-                <p className="text-sm font-semibold">InnoVote Admin</p>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setMobileNavOpen(false)}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-              <Separator className="bg-sidebar-border" />
-              <NavList onNavigate={() => setMobileNavOpen(false)} />
+        <div
+          aria-hidden={!mobileNavOpen}
+          className={`fixed inset-0 z-50 transition-opacity duration-300 motion-reduce:transition-none sm:hidden ${
+            mobileNavOpen ? "opacity-100" : "pointer-events-none opacity-0"
+          }`}
+        >
+          <div className="absolute inset-0 bg-black/50" onClick={() => setMobileNavOpen(false)} />
+          <div
+            className={`absolute left-0 top-0 flex h-full w-64 flex-col bg-sidebar shadow-xl transition-transform duration-300 ease-out motion-reduce:transition-none ${
+              mobileNavOpen ? "translate-x-0" : "-translate-x-full"
+            }`}
+          >
+            <div className="flex items-center justify-between px-4 py-4">
+              <p className="text-sm font-semibold">InnoVote Admin</p>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setMobileNavOpen(false)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
             </div>
+            <Separator className="bg-sidebar-border" />
+            <NavList onNavigate={() => setMobileNavOpen(false)} />
           </div>
-        )}
+        </div>
 
         <main className="flex-1 p-4 sm:p-8">
           <div className="mx-auto max-w-6xl">

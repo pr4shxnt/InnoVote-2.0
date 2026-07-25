@@ -130,15 +130,10 @@ export function Landing() {
     <div className="overflow-x-hidden">
       {/* HERO — the navbar floats transparently on top of this, so it fills one true screen height */}
       <section className="flex min-h-screen flex-col">
-        <div className="hero-pattern flex flex-1 items-center border-b border-[color:var(--border-card)] px-6 py-12">
+        <div className="hero-pattern flex flex-1 items-center border-b border-[color:var(--border-card)] px-6 pb-12 pt-24 sm:pt-12">
           <div className="mx-auto grid max-w-6xl gap-14 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
             <div className="text-center lg:text-left">
-              <span className="hero-badge inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-wide">
-                <span className="h-1.5 w-1.5 rounded-full bg-primary-500" />
-                Sunwayians' Innovation Fest 2026
-              </span>
-
-              <h1 className="mx-auto mt-6 max-w-xl text-4xl font-bold leading-[1.1] sm:text-5xl lg:mx-0 lg:text-6xl">
+              <h1 className="mx-auto max-w-xl text-3xl font-bold leading-[1.15] sm:text-5xl lg:mx-0 lg:text-6xl">
                 Cast Your Vote.
                 <br />
                 <span className="text-primary-500">Crown</span> the Best
