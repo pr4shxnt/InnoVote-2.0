@@ -11,6 +11,15 @@ class MockSmsGateClient implements SmsGateClient {
   }
 }
 
+// The global `fetch`/`Response` types Node ships (via @types/node's bundled undici
+// types) resolve inconsistently depending on the exact TS lib combination in play —
+// this minimal shape sidesteps that entirely; `fetch()` genuinely returns this at runtime.
+interface FetchResponseLike {
+  ok: boolean;
+  status: number;
+  text(): Promise<string>;
+}
+
 // TODO: replace request shape once real SMSGATE API docs/credentials are provided.
 class HttpSmsGateClient implements SmsGateClient {
   constructor(
@@ -22,7 +31,7 @@ class HttpSmsGateClient implements SmsGateClient {
 
   async sendOtpSms(phoneNumber: string, otp: string): Promise<void> {
     const authHeader = `Basic ${Buffer.from(`${this.username}:${this.password}`).toString("base64")}`;
-    const res = await fetch(`${this.baseUrl}/3rdparty/v1/message`, {
+    const res = (await fetch(`${this.baseUrl}/3rdparty/v1/message`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -33,7 +42,7 @@ class HttpSmsGateClient implements SmsGateClient {
         message: `Your InnoVote 2.0 verification code is ${otp}. It expires in 3 minutes.`,
         ...(this.deviceId ? { deviceId: this.deviceId } : {}),
       }),
-    });
+    })) as unknown as FetchResponseLike;
 
     if (!res.ok) {
       const body = await res.text().catch(() => "");
