@@ -89,4 +89,14 @@ export interface VotingRound {
   name: string;
   resultRevealAt: string | null;
   isPublished: boolean;
+  votingOpensAt: string | null;
+  votingClosesAt: string | null;
+  votingManualOverride: "open" | "closed" | null;
+  votingOpen: boolean;
+}
+
+export interface VotingStatus {
+  votingOpen: boolean;
+  votingOpensAt: string | null;
+  votingClosesAt: string | null;
 }

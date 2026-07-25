@@ -120,7 +120,13 @@ export function getRound() {
   return apiRequest<{ success: true; round: VotingRound }>("/admin/results/round");
 }
 
-export function updateRound(input: { resultRevealAt?: string | null; isPublished?: boolean }) {
+export function updateRound(input: {
+  resultRevealAt?: string | null;
+  isPublished?: boolean;
+  votingOpensAt?: string | null;
+  votingClosesAt?: string | null;
+  votingManualOverride?: "open" | "closed" | null;
+}) {
   return apiRequest<{ success: true; round: VotingRound }>("/admin/results/round", {
     method: "PUT",
     body: input,

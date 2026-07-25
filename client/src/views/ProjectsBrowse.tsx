@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { castVote } from "../api/votes.ts";
+import { castVote, getVotingStatus } from "../api/votes.ts";
 import { ApiError } from "../api/client.ts";
 import { listProjects } from "../api/projects.ts";
 import { PageContainer } from "../components/PageContainer.tsx";
@@ -23,11 +23,15 @@ export function ProjectsBrowse() {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search, 300);
   const [viewingProject, setViewingProject] = useState<Project | null>(null);
+  const [votingOpen, setVotingOpen] = useState(true);
 
   useEffect(() => {
     listProjects()
       .then((res) => setProjects(res.projects))
       .finally(() => setLoading(false));
+    getVotingStatus()
+      .then((res) => setVotingOpen(res.votingOpen))
+      .catch(() => setVotingOpen(true));
   }, []);
 
   const filteredProjects = useMemo(() => {
@@ -73,6 +77,12 @@ export function ProjectsBrowse() {
         </div>
       )}
 
+      {!votingOpen && (
+        <div className="mb-6 rounded-xl border border-status-warning bg-[#FFFBEB] px-4 py-3 text-sm font-medium text-status-warning">
+          Voting is currently closed. You can browse the projects, but votes aren't being accepted right now.
+        </div>
+      )}
+
       <div className="mb-4 max-w-sm">
         <SearchInput value={search} onChange={setSearch} placeholder="Search projects, teams, members…" />
       </div>
@@ -90,7 +100,7 @@ export function ProjectsBrowse() {
               key={project.id}
               project={project}
               isVotedProject={state.votedProject?.id === project.id}
-              canVote={!state.hasVoted}
+              canVote={!state.hasVoted && votingOpen}
               voting={votingId === project.id}
               onVote={handleVote}
               onView={setViewingProject}
@@ -103,7 +113,7 @@ export function ProjectsBrowse() {
         project={viewingProject}
         onClose={() => setViewingProject(null)}
         isVotedProject={viewingProject !== null && state.votedProject?.id === viewingProject.id}
-        canVote={!state.hasVoted}
+        canVote={!state.hasVoted && votingOpen}
         voting={viewingProject !== null && votingId === viewingProject.id}
         onVote={handleVote}
       />

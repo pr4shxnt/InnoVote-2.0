@@ -68,4 +68,7 @@ export const blockUserBodySchema = z.object({
 export const updateRoundBodySchema = z.object({
   resultRevealAt: z.string().datetime().nullable().optional(),
   isPublished: z.boolean().optional(),
+  votingOpensAt: z.string().datetime().nullable().optional(),
+  votingClosesAt: z.string().datetime().nullable().optional(),
+  votingManualOverride: z.enum(["open", "closed"]).nullable().optional(),
 });

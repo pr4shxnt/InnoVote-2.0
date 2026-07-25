@@ -2,7 +2,7 @@ import { ApiError } from "../middleware/errorHandler.js";
 import { ResearchPaperModel, type ResearchPaperDocument } from "../models/ResearchPaper.js";
 import { ResearchPaperVoteModel } from "../models/ResearchPaperVote.js";
 import { UserModel } from "../models/User.js";
-import { getActiveRound } from "./roundService.js";
+import { getActiveRound, isVotingOpen } from "./roundService.js";
 import type { HydratedDocument } from "mongoose";
 
 interface CastPaperVoteInput {
@@ -19,6 +19,9 @@ export async function castPaperVote(input: CastPaperVoteInput): Promise<Hydrated
   }
 
   const round = await getActiveRound();
+  if (!isVotingOpen(round)) {
+    throw new ApiError(403, "Voting is currently closed.");
+  }
 
   // Atomic guard: only one concurrent request can flip hasVotedPaper to true for this user.
   // Match on "not already true" (rather than strictly `false`) so users whose documents

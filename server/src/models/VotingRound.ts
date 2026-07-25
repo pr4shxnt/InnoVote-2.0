@@ -6,6 +6,9 @@ const votingRoundSchema = new Schema(
     isActive: { type: Boolean, default: true },
     resultRevealAt: { type: Date, default: null },
     isPublished: { type: Boolean, default: false },
+    votingOpensAt: { type: Date, default: null },
+    votingClosesAt: { type: Date, default: null },
+    votingManualOverride: { type: String, enum: ["open", "closed"], default: null },
   },
   { timestamps: true },
 );

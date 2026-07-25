@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { castPaperVote } from "../api/votes.ts";
+import { castPaperVote, getVotingStatus } from "../api/votes.ts";
 import { ApiError } from "../api/client.ts";
 import { listResearchPapers } from "../api/researchPapers.ts";
 import { PageContainer } from "../components/PageContainer.tsx";
@@ -21,11 +21,15 @@ export function ResearchPapersBrowse() {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search, 300);
   const [viewingPaper, setViewingPaper] = useState<ResearchPaper | null>(null);
+  const [votingOpen, setVotingOpen] = useState(true);
 
   useEffect(() => {
     listResearchPapers()
       .then((res) => setPapers(res.papers))
       .finally(() => setLoading(false));
+    getVotingStatus()
+      .then((res) => setVotingOpen(res.votingOpen))
+      .catch(() => setVotingOpen(true));
   }, []);
 
   const filteredPapers = useMemo(() => {
@@ -67,6 +71,12 @@ export function ResearchPapersBrowse() {
         <SearchInput value={search} onChange={setSearch} placeholder="Search papers, teams, members…" />
       </div>
 
+      {!votingOpen && (
+        <div className="mb-6 rounded-xl border border-status-warning bg-[#FFFBEB] px-4 py-3 text-sm font-medium text-status-warning">
+          Voting is currently closed. You can browse the research papers, but votes aren't being accepted right now.
+        </div>
+      )}
+
       {error && <p className="mb-4 text-sm text-status-error">{error}</p>}
 
       {loading ? (
@@ -80,7 +90,7 @@ export function ResearchPapersBrowse() {
               key={paper.id}
               paper={paper}
               isVotedPaper={state.votedPaper?.id === paper.id}
-              canVote={!state.hasVotedPaper}
+              canVote={!state.hasVotedPaper && votingOpen}
               voting={votingId === paper.id}
               onVote={handleVote}
               onView={setViewingPaper}
@@ -93,7 +103,7 @@ export function ResearchPapersBrowse() {
         paper={viewingPaper}
         onClose={() => setViewingPaper(null)}
         isVotedPaper={viewingPaper !== null && state.votedPaper?.id === viewingPaper.id}
-        canVote={!state.hasVotedPaper}
+        canVote={!state.hasVotedPaper && votingOpen}
         voting={viewingPaper !== null && votingId === viewingPaper.id}
         onVote={handleVote}
       />
