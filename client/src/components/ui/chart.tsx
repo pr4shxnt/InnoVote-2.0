@@ -75,17 +75,34 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
 
 const ChartTooltip = RechartsPrimitive.Tooltip;
 
-const ChartTooltipContent = React.forwardRef<
-  HTMLDivElement,
-  React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
-    React.ComponentProps<"div"> & {
-      hideLabel?: boolean;
-      hideIndicator?: boolean;
-      indicator?: "line" | "dot" | "dashed";
-      nameKey?: string;
-      labelKey?: string;
-    }
->(
+// Recharts v3 only statically types its own DefaultTooltipContent render function;
+// the "content" slot accepts a bare untyped ReactElement, cloned at runtime with the
+// real payload/active/coordinate props. So our content component declares its own
+// minimal, all-optional prop shape rather than fighting Recharts' generic content types.
+interface ChartTooltipPayloadItem {
+  dataKey?: string | number;
+  name?: string | number;
+  value?: number | string | ReadonlyArray<number | string>;
+  color?: string;
+  fill?: string;
+  payload?: Record<string, unknown>;
+}
+
+interface ChartTooltipContentProps extends Omit<React.ComponentProps<"div">, "label"> {
+  active?: boolean;
+  payload?: readonly ChartTooltipPayloadItem[];
+  label?: React.ReactNode;
+  labelFormatter?: (label: React.ReactNode, payload: readonly ChartTooltipPayloadItem[]) => React.ReactNode;
+  labelClassName?: string;
+  color?: string;
+  hideLabel?: boolean;
+  hideIndicator?: boolean;
+  indicator?: "line" | "dot" | "dashed";
+  nameKey?: string;
+  labelKey?: string;
+}
+
+const ChartTooltipContent = React.forwardRef<HTMLDivElement, ChartTooltipContentProps>(
   (
     {
       active,
@@ -97,7 +114,6 @@ const ChartTooltipContent = React.forwardRef<
       label,
       labelFormatter,
       labelClassName,
-      formatter,
       color,
       nameKey,
       labelKey,
@@ -157,48 +173,39 @@ const ChartTooltipContent = React.forwardRef<
                   indicator === "dot" && "items-center",
                 )}
               >
-                {formatter && item?.value !== undefined && item.name ? (
-                  formatter(item.value, item.name, item, index, item.payload)
+                {itemConfig?.icon ? (
+                  <itemConfig.icon />
                 ) : (
-                  <>
-                    {itemConfig?.icon ? (
-                      <itemConfig.icon />
-                    ) : (
-                      !hideIndicator && (
-                        <div
-                          className={cn("shrink-0 rounded-[2px] border-[--color-border] bg-[--color-bg]", {
-                            "h-2.5 w-2.5": indicator === "dot",
-                            "w-1": indicator === "line",
-                            "w-0 border-[1.5px] border-dashed bg-transparent": indicator === "dashed",
-                            "my-0.5": nestLabel && indicator === "dashed",
-                          })}
-                          style={
-                            {
-                              "--color-bg": indicatorColor,
-                              "--color-border": indicatorColor,
-                            } as React.CSSProperties
-                          }
-                        />
-                      )
-                    )}
+                  !hideIndicator && (
                     <div
-                      className={cn(
-                        "flex flex-1 justify-between leading-none",
-                        nestLabel ? "items-end" : "items-center",
-                      )}
-                    >
-                      <div className="grid gap-1.5">
-                        {nestLabel ? tooltipLabel : null}
-                        <span className="text-muted-foreground">{itemConfig?.label ?? item.name}</span>
-                      </div>
-                      {item.value !== undefined && (
-                        <span className="font-mono font-medium tabular-nums text-foreground">
-                          {typeof item.value === "number" ? item.value.toLocaleString() : item.value}
-                        </span>
-                      )}
-                    </div>
-                  </>
+                      className={cn("shrink-0 rounded-[2px] border-[--color-border] bg-[--color-bg]", {
+                        "h-2.5 w-2.5": indicator === "dot",
+                        "w-1": indicator === "line",
+                        "w-0 border-[1.5px] border-dashed bg-transparent": indicator === "dashed",
+                        "my-0.5": nestLabel && indicator === "dashed",
+                      })}
+                      style={
+                        {
+                          "--color-bg": indicatorColor,
+                          "--color-border": indicatorColor,
+                        } as React.CSSProperties
+                      }
+                    />
+                  )
                 )}
+                <div
+                  className={cn("flex flex-1 justify-between leading-none", nestLabel ? "items-end" : "items-center")}
+                >
+                  <div className="grid gap-1.5">
+                    {nestLabel ? tooltipLabel : null}
+                    <span className="text-muted-foreground">{itemConfig?.label ?? item.name}</span>
+                  </div>
+                  {item.value !== undefined && (
+                    <span className="font-mono font-medium tabular-nums text-foreground">
+                      {typeof item.value === "number" ? item.value.toLocaleString() : item.value}
+                    </span>
+                  )}
+                </div>
               </div>
             );
           })}
@@ -211,46 +218,54 @@ ChartTooltipContent.displayName = "ChartTooltipContent";
 
 const ChartLegend = RechartsPrimitive.Legend;
 
-const ChartLegendContent = React.forwardRef<
-  HTMLDivElement,
-  React.ComponentProps<"div"> &
-    Pick<RechartsPrimitive.LegendProps, "payload" | "verticalAlign"> & {
-      hideIcon?: boolean;
-      nameKey?: string;
+interface ChartLegendPayloadItem {
+  value?: string | number;
+  dataKey?: string | number;
+  color?: string;
+}
+
+interface ChartLegendContentProps extends React.ComponentProps<"div"> {
+  payload?: readonly ChartLegendPayloadItem[];
+  verticalAlign?: "top" | "bottom" | "middle";
+  hideIcon?: boolean;
+  nameKey?: string;
+}
+
+const ChartLegendContent = React.forwardRef<HTMLDivElement, ChartLegendContentProps>(
+  ({ className, hideIcon = false, payload, verticalAlign = "bottom", nameKey }, ref) => {
+    const { config } = useChart();
+
+    if (!payload?.length) {
+      return null;
     }
->(({ className, hideIcon = false, payload, verticalAlign = "bottom", nameKey }, ref) => {
-  const { config } = useChart();
 
-  if (!payload?.length) {
-    return null;
-  }
+    return (
+      <div
+        ref={ref}
+        className={cn("flex items-center justify-center gap-4", verticalAlign === "top" ? "pb-3" : "pt-3", className)}
+      >
+        {payload.map((item) => {
+          const key = nameKey ?? item.dataKey ?? "value";
+          const itemConfig = config[key as string];
 
-  return (
-    <div
-      ref={ref}
-      className={cn("flex items-center justify-center gap-4", verticalAlign === "top" ? "pb-3" : "pt-3", className)}
-    >
-      {payload.map((item) => {
-        const key = nameKey ?? item.dataKey ?? "value";
-        const itemConfig = config[key as string];
-
-        return (
-          <div
-            key={item.value}
-            className={cn("flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground")}
-          >
-            {itemConfig?.icon && !hideIcon ? (
-              <itemConfig.icon />
-            ) : (
-              <div className="h-2 w-2 shrink-0 rounded-[2px]" style={{ backgroundColor: item.color }} />
-            )}
-            {itemConfig?.label ?? item.value}
-          </div>
-        );
-      })}
-    </div>
-  );
-});
+          return (
+            <div
+              key={item.value}
+              className={cn("flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground")}
+            >
+              {itemConfig?.icon && !hideIcon ? (
+                <itemConfig.icon />
+              ) : (
+                <div className="h-2 w-2 shrink-0 rounded-[2px]" style={{ backgroundColor: item.color }} />
+              )}
+              {itemConfig?.label ?? item.value}
+            </div>
+          );
+        })}
+      </div>
+    );
+  },
+);
 ChartLegendContent.displayName = "ChartLegendContent";
 
 export { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, ChartStyle };
