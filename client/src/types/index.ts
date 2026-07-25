@@ -100,3 +100,23 @@ export interface VotingStatus {
   votingOpensAt: string | null;
   votingClosesAt: string | null;
 }
+
+export interface AdminAnalyticsTotals {
+  totalProjects: number;
+  activeProjects: number;
+  totalResearchPapers: number;
+  activeResearchPapers: number;
+  totalProjectVotes: number;
+  totalPaperVotes: number;
+  totalUsers: number;
+  votedProjectUsers: number;
+  votedPaperUsers: number;
+  blockedUsers: number;
+}
+
+export interface AdminAnalytics {
+  totals: AdminAnalyticsTotals;
+  votesByProject: { projectId: string; title: string; boothNumber: string; voteCount: number }[];
+  votesByPaper: { paperId: string; title: string; voteCount: number }[];
+  votesOverTime: { bucket: string; projectVotes: number; paperVotes: number }[];
+}

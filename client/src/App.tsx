@@ -1,5 +1,5 @@
 import { Suspense, lazy } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 import { Layout } from "./components/Layout.tsx";
 
 const Landing = lazy(() => import("./views/Landing.tsx").then((m) => ({ default: m.Landing })));
@@ -23,22 +23,30 @@ function PageFallback() {
   );
 }
 
-export function App() {
+function PublicLayout() {
   return (
     <Layout>
-      <Suspense fallback={<PageFallback />}>
-        <Routes>
+      <Outlet />
+    </Layout>
+  );
+}
+
+export function App() {
+  return (
+    <Suspense fallback={<PageFallback />}>
+      <Routes>
+        <Route element={<PublicLayout />}>
           <Route path="/" element={<Landing />} />
           <Route path="/projects" element={<ProjectsBrowse />} />
           <Route path="/research-papers" element={<ResearchPapersBrowse />} />
           <Route path="/login" element={<OtpLogin />} />
           <Route path="/profile" element={<VotingProfile />} />
           <Route path="/results" element={<Results />} />
-          <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/admin" element={<AdminDashboard />} />
           <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Suspense>
-    </Layout>
+        </Route>
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin" element={<AdminDashboard />} />
+      </Routes>
+    </Suspense>
   );
 }

@@ -61,3 +61,46 @@ body {
   color: var(--brand-primary);
 }
 
+/*
+ * shadcn/ui semantic tokens, scoped to the admin dashboard. The admin panel
+ * is always rendered light regardless of the public site's theme, so these
+ * are plain hex values (not light/dark pairs) mapped onto the same brand
+ * palette used everywhere else in the app.
+ */
+@layer base {
+  :root {
+    --background: #fafafb;
+    --foreground: #0f172a;
+    --card: #ffffff;
+    --card-foreground: #0f172a;
+    --popover: #ffffff;
+    --popover-foreground: #0f172a;
+    --primary: #c12a37;
+    --primary-foreground: #ffffff;
+    --secondary: #f1f5f9;
+    --secondary-foreground: #0f172a;
+    --muted: #f1f5f9;
+    --muted-foreground: #475569;
+    --accent: #fff0f2;
+    --accent-foreground: #7b151f;
+    --destructive: #dc2626;
+    --destructive-foreground: #ffffff;
+    --border: #e2e8f0;
+    --input: #e2e8f0;
+    --ring: #c12a37;
+    --radius: 0.625rem;
+    --chart-1: #c12a37;
+    --chart-2: #3b82f6;
+    --chart-3: #10b981;
+    --chart-4: #f59e0b;
+    --chart-5: #64748b;
+    --sidebar: #ffffff;
+    --sidebar-foreground: #0f172a;
+    --sidebar-primary: #c12a37;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #fff0f2;
+    --sidebar-accent-foreground: #7b151f;
+    --sidebar-border: #e2e8f0;
+    --sidebar-ring: #c12a37;
+  }
+}

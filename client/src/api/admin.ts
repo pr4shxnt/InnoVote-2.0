@@ -1,4 +1,4 @@
-import type { AdminProject, AdminResearchPaper, AdminUserRecord, VotingRound } from "../types/index.ts";
+import type { AdminAnalytics, AdminProject, AdminResearchPaper, AdminUserRecord, VotingRound } from "../types/index.ts";
 import { API_BASE, apiRequest, ApiError } from "./client.ts";
 
 export interface ProjectInput {
@@ -114,6 +114,10 @@ export async function uploadImage(file: File) {
   }
 
   return data as { success: true; url: string; publicId: string };
+}
+
+export function getAdminAnalytics() {
+  return apiRequest<{ success: true } & AdminAnalytics>("/admin/analytics");
 }
 
 export function getRound() {

@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
+import { Calendar, Eye, Trophy, Vote } from "lucide-react";
 import { getRound, updateRound } from "../../api/admin.ts";
 import type { VotingRound } from "../../types/index.ts";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 
 export function AdminResults() {
   const [round, setRound] = useState<VotingRound | null>(null);
@@ -52,117 +59,129 @@ export function AdminResults() {
   }
 
   if (loading || !round) {
-    return <p className="text-sm text-[color:var(--text-muted)]">Loading…</p>;
+    return <p className="text-sm text-muted-foreground">Loading…</p>;
   }
 
   return (
-    <div className="space-y-4">
-      <div className="rounded-xl border border-[color:var(--border-card)] bg-[color:var(--bg-card)] p-4">
-        <p className="text-sm text-[color:var(--text-muted)]">Voting status</p>
-        <p className="mt-1 text-lg font-semibold">
-          {round.votingOpen ? (
-            <span className="text-status-success">Open — voters can cast votes</span>
-          ) : (
-            <span className="text-status-warning">Closed</span>
-          )}
-        </p>
-        {round.votingManualOverride && (
-          <p className="mt-1 text-xs text-[color:var(--text-muted)]">
-            Manual override active: forced {round.votingManualOverride}. Schedule below is ignored until cleared.
-          </p>
-        )}
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <Card>
+        <CardHeader className="flex flex-row items-center gap-2 space-y-0">
+          <Vote className="h-4 w-4 text-muted-foreground" />
+          <CardTitle className="text-base font-semibold text-foreground">Voting Control</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between rounded-lg border border-border bg-muted/40 px-3 py-2.5">
+            <div>
+              <p className="text-sm font-medium text-foreground">
+                {round.votingOpen ? "Open — voters can cast votes" : "Closed to voters"}
+              </p>
+              {round.votingManualOverride && (
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  Manual override: forced {round.votingManualOverride}. Schedule below is ignored until cleared.
+                </p>
+              )}
+            </div>
+            {round.votingOpen ? <Badge variant="success">Open</Badge> : <Badge variant="warning">Closed</Badge>}
+          </div>
 
-        <div className="mt-3 flex flex-wrap gap-2">
-          <button
-            onClick={() => handleSetOverride("open")}
-            className="rounded-lg bg-status-success px-4 py-2 text-sm font-semibold text-white hover:opacity-90"
-          >
-            Force Open Now
-          </button>
-          <button
-            onClick={() => handleSetOverride("closed")}
-            className="rounded-lg bg-status-error px-4 py-2 text-sm font-semibold text-white hover:opacity-90"
-          >
-            Force Close Now
-          </button>
-          {round.votingManualOverride && (
-            <button
-              onClick={() => handleSetOverride(null)}
-              className="rounded-lg border border-[color:var(--border-card)] px-4 py-2 text-sm font-semibold hover:bg-[color:var(--bg-elevated)]"
+          <div className="flex flex-wrap gap-2">
+            <Button
+              size="sm"
+              onClick={() => handleSetOverride("open")}
+              className="bg-status-success text-white hover:bg-status-success/90"
             >
-              Clear Override (follow schedule)
-            </button>
-          )}
-        </div>
-      </div>
-
-      <form
-        onSubmit={handleSetVotingWindow}
-        className="rounded-xl border border-[color:var(--border-card)] bg-[color:var(--bg-card)] p-4"
-      >
-        <p className="text-sm font-medium">Voting Window</p>
-        <p className="mt-0.5 text-xs text-[color:var(--text-muted)]">
-          Voting is only allowed between these times, unless a manual override above is set. Leave a field blank for no bound.
-        </p>
-        <div className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <div>
-            <label className="text-xs font-medium text-[color:var(--text-muted)]">Opens At</label>
-            <input
-              type="datetime-local"
-              value={votingOpensAtInput}
-              onChange={(e) => setVotingOpensAtInput(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-[color:var(--border-card)] bg-transparent px-3 py-2 text-sm focus:border-primary-500 focus:outline-none"
-            />
+              Force Open Now
+            </Button>
+            <Button size="sm" variant="destructive" onClick={() => handleSetOverride("closed")}>
+              Force Close Now
+            </Button>
+            {round.votingManualOverride && (
+              <Button size="sm" variant="outline" onClick={() => handleSetOverride(null)}>
+                Clear Override
+              </Button>
+            )}
           </div>
+
+          <Separator />
+
           <div>
-            <label className="text-xs font-medium text-[color:var(--text-muted)]">Closes At</label>
-            <input
-              type="datetime-local"
-              value={votingClosesAtInput}
-              onChange={(e) => setVotingClosesAtInput(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-[color:var(--border-card)] bg-transparent px-3 py-2 text-sm focus:border-primary-500 focus:outline-none"
-            />
+            <p className="mb-1 flex items-center gap-1.5 text-sm font-medium text-foreground">
+              <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+              Scheduled Voting Window
+            </p>
+            <p className="mb-3 text-xs text-muted-foreground">
+              Leave a field blank for no bound. Ignored while a manual override is active.
+            </p>
+            <form onSubmit={handleSetVotingWindow} className="space-y-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="space-y-1">
+                  <Label htmlFor="voting-opens-at">Opens At</Label>
+                  <Input
+                    id="voting-opens-at"
+                    type="datetime-local"
+                    value={votingOpensAtInput}
+                    onChange={(e) => setVotingOpensAtInput(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="voting-closes-at">Closes At</Label>
+                  <Input
+                    id="voting-closes-at"
+                    type="datetime-local"
+                    value={votingClosesAtInput}
+                    onChange={(e) => setVotingClosesAtInput(e.target.value)}
+                  />
+                </div>
+              </div>
+              <Button type="submit" size="sm">
+                Save Voting Window
+              </Button>
+            </form>
           </div>
-        </div>
-        <button
-          type="submit"
-          className="mt-3 rounded-lg bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600"
-        >
-          Save Voting Window
-        </button>
-      </form>
+        </CardContent>
+      </Card>
 
-      <div className="rounded-xl border border-[color:var(--border-card)] bg-[color:var(--bg-card)] p-4">
-        <p className="text-sm text-[color:var(--text-muted)]">Current status</p>
-        <p className="mt-1 text-lg font-semibold">
-          {round.isPublished ? (
-            <span className="text-status-success">Published — visible to voters</span>
-          ) : (
-            <span className="text-status-warning">Hidden</span>
-          )}
-        </p>
-        <button
-          onClick={handleTogglePublish}
-          className="mt-3 rounded-lg bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600"
-        >
-          {round.isPublished ? "Unpublish Results" : "Publish Results Now"}
-        </button>
-      </div>
+      <Card>
+        <CardHeader className="flex flex-row items-center gap-2 space-y-0">
+          <Trophy className="h-4 w-4 text-muted-foreground" />
+          <CardTitle className="text-base font-semibold text-foreground">Results Control</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between rounded-lg border border-border bg-muted/40 px-3 py-2.5">
+            <p className="text-sm font-medium text-foreground">
+              {round.isPublished ? "Published — visible to voters" : "Hidden from voters"}
+            </p>
+            {round.isPublished ? <Badge variant="success">Published</Badge> : <Badge variant="warning">Hidden</Badge>}
+          </div>
 
-      <form onSubmit={handleSetRevealAt} className="rounded-xl border border-[color:var(--border-card)] bg-[color:var(--bg-card)] p-4">
-        <label className="text-xs font-medium text-[color:var(--text-muted)]">Scheduled Reveal Time</label>
-        <div className="mt-1 flex gap-2">
-          <input
-            type="datetime-local"
-            value={revealAtInput}
-            onChange={(e) => setRevealAtInput(e.target.value)}
-            className="flex-1 rounded-lg border border-[color:var(--border-card)] bg-transparent px-3 py-2 text-sm focus:border-primary-500 focus:outline-none"
-          />
-          <button type="submit" className="rounded-lg bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600">
-            Save
-          </button>
-        </div>
-      </form>
+          <Button size="sm" onClick={handleTogglePublish}>
+            {round.isPublished ? "Unpublish Results" : "Publish Results Now"}
+          </Button>
+
+          <Separator />
+
+          <div>
+            <p className="mb-1 flex items-center gap-1.5 text-sm font-medium text-foreground">
+              <Eye className="h-3.5 w-3.5 text-muted-foreground" />
+              Scheduled Reveal Time
+            </p>
+            <p className="mb-3 text-xs text-muted-foreground">
+              Results auto-publish at this time, in addition to the manual toggle above.
+            </p>
+            <form onSubmit={handleSetRevealAt} className="flex gap-2">
+              <Input
+                type="datetime-local"
+                value={revealAtInput}
+                onChange={(e) => setRevealAtInput(e.target.value)}
+                className="flex-1"
+              />
+              <Button type="submit" size="sm">
+                Save
+              </Button>
+            </form>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

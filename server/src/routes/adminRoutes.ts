@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { getAdminAnalyticsHandler } from "../controllers/adminAnalyticsController.js";
 import { adminLoginHandler, adminLogoutHandler, adminMeHandler } from "../controllers/adminAuthController.js";
 import {
   blockUserHandler,
@@ -46,6 +47,8 @@ adminRouter.delete("/research-papers/:id", deleteResearchPaperHandler);
 adminRouter.get("/users", listUsersHandler);
 adminRouter.post("/users/block", blockUserHandler);
 adminRouter.post("/users/unblock", unblockUserHandler);
+
+adminRouter.get("/analytics", getAdminAnalyticsHandler);
 
 adminRouter.get("/results/round", getRoundHandler);
 adminRouter.put("/results/round", updateRoundHandler);

@@ -8,6 +8,11 @@ import {
 } from "../../api/admin.ts";
 import { ImageUploadField } from "../../components/ImageUploadField.tsx";
 import type { AdminProject } from "../../types/index.ts";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const emptyForm: ProjectInput = {
   title: "",
@@ -73,84 +78,135 @@ export function AdminProjects() {
 
   return (
     <div className="space-y-6">
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-2 rounded-xl border border-[color:var(--border-card)] bg-[color:var(--bg-card)] p-4 sm:grid-cols-2">
-        <input
-          required
-          placeholder="Title"
-          value={form.title}
-          onChange={(e) => setForm({ ...form, title: e.target.value })}
-          className="rounded-lg border border-[color:var(--border-card)] bg-transparent px-3 py-2 text-sm focus:border-primary-500 focus:outline-none"
-        />
-        <input
-          required
-          placeholder="Booth Number"
-          value={form.boothNumber}
-          onChange={(e) => setForm({ ...form, boothNumber: e.target.value })}
-          className="rounded-lg border border-[color:var(--border-card)] bg-transparent px-3 py-2 text-sm focus:border-primary-500 focus:outline-none"
-        />
-        <ImageUploadField value={form.imageUrl ?? ""} onChange={(imageUrl) => setForm({ ...form, imageUrl })} />
-        <input
-          placeholder="Team Name"
-          value={form.teamName}
-          onChange={(e) => setForm({ ...form, teamName: e.target.value })}
-          className="rounded-lg border border-[color:var(--border-card)] bg-transparent px-3 py-2 text-sm focus:border-primary-500 focus:outline-none"
-        />
-        <input
-          placeholder="Team members (comma separated)"
-          value={teamMembersInput}
-          onChange={(e) => setTeamMembersInput(e.target.value)}
-          className="rounded-lg border border-[color:var(--border-card)] bg-transparent px-3 py-2 text-sm focus:border-primary-500 focus:outline-none"
-        />
-        <textarea
-          placeholder="Description"
-          value={form.description}
-          onChange={(e) => setForm({ ...form, description: e.target.value })}
-          className="col-span-full rounded-lg border border-[color:var(--border-card)] bg-transparent px-3 py-2 text-sm focus:border-primary-500 focus:outline-none"
-        />
-        <div className="col-span-full flex gap-2">
-          <button type="submit" className="rounded-lg bg-primary-500 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-600">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base font-semibold text-foreground">
             {editingId ? "Update Project" : "Create Project"}
-          </button>
-          {editingId && (
-            <button
-              type="button"
-              onClick={() => {
-                setEditingId(null);
-                setForm(emptyForm);
-                setTeamMembersInput("");
-              }}
-              className="rounded-lg border border-[color:var(--border-card)] px-4 py-2 text-sm"
-            >
-              Cancel
-            </button>
-          )}
-        </div>
-      </form>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="space-y-1">
+              <Label htmlFor="project-title">Title</Label>
+              <Input
+                id="project-title"
+                required
+                value={form.title}
+                onChange={(e) => setForm({ ...form, title: e.target.value })}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="project-booth">Booth Number</Label>
+              <Input
+                id="project-booth"
+                required
+                value={form.boothNumber}
+                onChange={(e) => setForm({ ...form, boothNumber: e.target.value })}
+              />
+            </div>
+            <div className="col-span-full space-y-1">
+              <Label>Image</Label>
+              <ImageUploadField value={form.imageUrl ?? ""} onChange={(imageUrl) => setForm({ ...form, imageUrl })} />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="project-team">Team Name</Label>
+              <Input
+                id="project-team"
+                value={form.teamName}
+                onChange={(e) => setForm({ ...form, teamName: e.target.value })}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="project-members">Team Members (comma separated)</Label>
+              <Input
+                id="project-members"
+                value={teamMembersInput}
+                onChange={(e) => setTeamMembersInput(e.target.value)}
+              />
+            </div>
+            <div className="col-span-full space-y-1">
+              <Label htmlFor="project-description">Description</Label>
+              <textarea
+                id="project-description"
+                value={form.description}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                className="flex min-h-16 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              />
+            </div>
+            <div className="col-span-full flex gap-2">
+              <Button type="submit">{editingId ? "Update Project" : "Create Project"}</Button>
+              {editingId && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setEditingId(null);
+                    setForm(emptyForm);
+                    setTeamMembersInput("");
+                  }}
+                >
+                  Cancel
+                </Button>
+              )}
+            </div>
+          </form>
+        </CardContent>
+      </Card>
 
       {loading ? (
-        <p className="text-sm text-[color:var(--text-muted)]">Loading…</p>
+        <p className="text-sm text-muted-foreground">Loading…</p>
+      ) : projects.length === 0 ? (
+        <p className="text-sm text-muted-foreground">No projects yet.</p>
       ) : (
-        <div className="space-y-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {projects.map((p) => (
-            <div key={p.id} className="flex items-center justify-between rounded-lg border border-[color:var(--border-card)] bg-[color:var(--bg-card)] px-4 py-3">
-              <div>
-                <p className="font-medium">
-                  {p.title} <span className="text-xs text-[color:var(--text-muted)]">Booth #{p.boothNumber}</span>
-                </p>
-                {!p.isActive && <span className="text-xs text-status-error">Inactive</span>}
+            <Card key={p.id} className="flex flex-col overflow-hidden">
+              <div className="aspect-video w-full overflow-hidden bg-muted">
+                {p.imageUrl ? (
+                  <img src={p.imageUrl} alt={p.title} className="h-full w-full object-cover" />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
+                    No image
+                  </div>
+                )}
               </div>
-              <div className="flex items-center gap-3">
-                <span className="rounded-full bg-[color:var(--bg-elevated)] px-3 py-1 text-xs font-semibold text-primary-500">
-                  {p.voteCount} {p.voteCount === 1 ? "vote" : "votes"}
-                </span>
-                <button onClick={() => startEdit(p)} className="rounded-lg border border-[color:var(--border-card)] px-3 py-1 text-xs hover:bg-[color:var(--bg-elevated)]">
-                  Edit
-                </button>
-                <button onClick={() => handleDelete(p.id)} className="rounded-lg border border-status-error px-3 py-1 text-xs text-status-error hover:bg-[#FEF2F2]">
-                  Delete
-                </button>
-              </div>
-            </div>
+              <CardContent className="flex flex-1 flex-col gap-3 p-4">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <p className="font-semibold leading-tight text-foreground">{p.title}</p>
+                    <p className="text-xs text-muted-foreground">Booth #{p.boothNumber}</p>
+                  </div>
+                  {p.isActive ? (
+                    <Badge variant="success">Active</Badge>
+                  ) : (
+                    <Badge variant="destructive">Inactive</Badge>
+                  )}
+                </div>
+
+                {p.description && <p className="line-clamp-2 text-sm text-muted-foreground">{p.description}</p>}
+
+                {(p.teamName || p.teamMembers.length > 0) && (
+                  <div className="text-xs text-muted-foreground">
+                    {p.teamName && <p className="font-medium text-foreground">{p.teamName}</p>}
+                    {p.teamMembers.length > 0 && <p className="mt-0.5">{p.teamMembers.join(", ")}</p>}
+                  </div>
+                )}
+
+                <div className="mt-auto flex items-center justify-between gap-2 pt-2">
+                  <Badge variant="secondary">
+                    {p.voteCount} {p.voteCount === 1 ? "vote" : "votes"}
+                  </Badge>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline" onClick={() => startEdit(p)}>
+                      Edit
+                    </Button>
+                    <Button size="sm" variant="destructive" onClick={() => handleDelete(p.id)}>
+                      Delete
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}
