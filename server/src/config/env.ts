@@ -6,7 +6,10 @@ const envSchema = z.object({
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   MONGODB_URI: z.string().min(1, "MONGODB_URI is required"),
   JWT_SECRET: z.string().min(1, "JWT_SECRET is required"),
-  CLIENT_ORIGIN: z.string().min(1, "CLIENT_ORIGIN is required"),
+  CLIENT_ORIGIN: z
+    .string()
+    .min(1, "CLIENT_ORIGIN is required")
+    .transform((val) => val.split(",").map((o) => o.trim())),
   ADMIN_USERNAME: z.string().min(1, "ADMIN_USERNAME is required"),
   ADMIN_PASSWORD_HASH: z.string().min(1, "ADMIN_PASSWORD_HASH is required"),
   SMSGATE_BASE_URL: z.string().optional().default(""),
