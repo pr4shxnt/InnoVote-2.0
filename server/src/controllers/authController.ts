@@ -48,7 +48,7 @@ export const verifyOtpHandler = asyncHandler(async (req: Request, res: Response)
   res.cookie(VOTER_SESSION_COOKIE, token, {
     httpOnly: true,
     secure: isProduction,
-    sameSite: "strict",
+    sameSite: isProduction ? "none" : "lax",
     maxAge: VOTER_SESSION_MAX_AGE_MS,
   });
 

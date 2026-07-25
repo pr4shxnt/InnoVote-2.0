@@ -19,7 +19,7 @@ export const adminLoginHandler = asyncHandler(async (req: Request, res: Response
   res.cookie(ADMIN_SESSION_COOKIE, token, {
     httpOnly: true,
     secure: isProduction,
-    sameSite: "strict",
+    sameSite: isProduction ? "none" : "lax",
     maxAge: ADMIN_SESSION_MAX_AGE_MS,
   });
 
