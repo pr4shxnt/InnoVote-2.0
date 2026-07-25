@@ -19,9 +19,9 @@ export function ResearchPaperCard({ paper, isVotedPaper, canVote, onVote, onView
           : "border-[color:var(--border-card)] bg-[color:var(--bg-card)]"
       }`}
     >
-      <div className="aspect-video w-full overflow-hidden bg-[color:var(--bg-elevated)]">
+      <div className="aspect-[1189/841] w-full overflow-hidden bg-[color:var(--bg-elevated)]">
         {paper.imageUrl ? (
-          <img src={paper.imageUrl} alt={paper.title} className="h-full w-full object-cover" />
+          <img src={paper.imageUrl} alt={paper.title} className="h-full w-full object-contain" />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-xs text-[color:var(--text-muted)]">
             No image
