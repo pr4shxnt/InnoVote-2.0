@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useReducer, useRef, type ReactNode } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { logout } from "../api/auth.ts";
 import { getProfile } from "../api/profile.ts";
 import type { VotedPaper, VotedProject } from "../types/index.ts";
@@ -95,6 +95,7 @@ const ProfileContext = createContext<ProfileContextValue | null>(null);
 export function ProfileProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(profileReducer, initialState);
   const navigate = useNavigate();
+  const location = useLocation();
   const hasTriggeredVotingCompleteLogout = useRef(false);
 
   async function refreshProfile() {
@@ -131,6 +132,9 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   // Once a voter has cast both their project and research paper vote, there's nothing left
   // for them to do — end the session automatically so the device is free for the next voter.
   useEffect(() => {
+    // Voter-session bookkeeping only — the admin area has its own separate auth
+    // (innovote_admin_session) and must never be hijacked by a voter's completed session.
+    if (location.pathname.startsWith("/admin")) return;
     if (!state.isAuthenticated) {
       hasTriggeredVotingCompleteLogout.current = false;
       return;
@@ -145,7 +149,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         dispatch({ type: "LOGOUT" });
         navigate("/projects?voted=complete", { replace: true });
       });
-  }, [state.isAuthenticated, state.hasVoted, state.hasVotedPaper, navigate]);
+  }, [state.isAuthenticated, state.hasVoted, state.hasVotedPaper, navigate, location.pathname]);
 
   const value = useMemo(() => ({ state, dispatch, refreshProfile }), [state]);
 
