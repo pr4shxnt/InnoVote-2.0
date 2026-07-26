@@ -44,7 +44,13 @@ export const verifyOtpHandler = asyncHandler(async (req: Request, res: Response)
     );
   } catch (err) {
     if (typeof err === "object" && err !== null && "code" in err && (err as { code: unknown }).code === 11000) {
-      user = await UserModel.findOne({ phoneNumber: normalizedPhoneNumber });
+      // Re-run as findOneAndUpdate (not findOne) so the read is routed to the primary,
+      // not a possibly-lagging secondary, right after the losing insert.
+      user = await UserModel.findOneAndUpdate(
+        { phoneNumber: normalizedPhoneNumber },
+        { $setOnInsert: { phoneNumber: normalizedPhoneNumber } },
+        { upsert: true, new: true },
+      );
     } else {
       throw err;
     }
