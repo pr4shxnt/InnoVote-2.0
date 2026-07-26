@@ -34,6 +34,11 @@ export async function verifyOtp(phoneNumber: string, otp: string): Promise<void>
     throw new ApiError(400, "Incorrect OTP.");
   }
 
-  otpRecord.consumedAt = new Date();
-  await otpRecord.save();
+  const consumed = await OtpModel.findOneAndUpdate(
+    { _id: otpRecord._id, consumedAt: null },
+    { consumedAt: new Date() },
+  );
+  if (!consumed) {
+    throw new ApiError(400, "OTP expired or invalid.");
+  }
 }

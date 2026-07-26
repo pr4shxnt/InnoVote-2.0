@@ -35,9 +35,22 @@ export const verifyOtpHandler = asyncHandler(async (req: Request, res: Response)
 
   await checkOtp(phoneNumber, otp);
 
-  let user = await UserModel.findOne({ phoneNumber: normalizedPhoneNumber });
+  let user;
+  try {
+    user = await UserModel.findOneAndUpdate(
+      { phoneNumber: normalizedPhoneNumber },
+      { $setOnInsert: { phoneNumber: normalizedPhoneNumber } },
+      { upsert: true, new: true },
+    );
+  } catch (err) {
+    if (typeof err === "object" && err !== null && "code" in err && (err as { code: unknown }).code === 11000) {
+      user = await UserModel.findOne({ phoneNumber: normalizedPhoneNumber });
+    } else {
+      throw err;
+    }
+  }
   if (!user) {
-    user = await UserModel.create({ phoneNumber: normalizedPhoneNumber });
+    throw new ApiError(500, "Failed to resolve voter account.");
   }
   if (user.status === "BLOCKED") {
     throw new ApiError(403, "This number is blocked from voting.");
