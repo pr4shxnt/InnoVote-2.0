@@ -1,6 +1,5 @@
 import type { Request, Response } from "express";
 import { isProduction } from "../config/env.js";
-import { ApiError } from "../middleware/errorHandler.js";
 import { UserModel } from "../models/User.js";
 import { normalizePhoneNumber } from "../services/hashService.js";
 import {
@@ -36,16 +35,9 @@ export const loginHandler = asyncHandler(
       }
     }
 
-    if (!user) {
-      throw new ApiError(500, "Failed to resolve voter account.");
-    }
-    if (user.status === "BLOCKED") {
-      throw new ApiError(403, "This number is blocked from voting.");
-    }
-
     const token = signVoterToken({
-      sub: user._id.toString(),
-      phoneNumber: user.phoneNumber,
+      sub: user!._id.toString(),
+      phoneNumber: user!.phoneNumber,
     });
 
     res.cookie(VOTER_SESSION_COOKIE, token, {
@@ -57,7 +49,7 @@ export const loginHandler = asyncHandler(
 
     res.json({
       success: true,
-      user: { phoneNumber: user.phoneNumber, hasVoted: user.hasVoted },
+      user: { phoneNumber: user!.phoneNumber, hasVoted: user!.hasVoted },
     });
   },
 );
