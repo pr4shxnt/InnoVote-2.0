@@ -100,6 +100,10 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   async function refreshProfile() {
     try {
       const { profile } = await getProfile();
+      if (!profile) {
+        dispatch({ type: "LOGOUT" });
+        return;
+      }
       dispatch({ type: "PROFILE_LOADED", payload: profile });
     } catch {
       dispatch({ type: "LOGOUT" });
