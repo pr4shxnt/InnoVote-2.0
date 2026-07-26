@@ -10,15 +10,9 @@ export const phoneNumberSchema = z
   .trim()
   .regex(/^\+?[1-9]\d{7,14}$/, "Invalid phone number format.");
 
-export const otpCodeSchema = z.string().trim().regex(/^\d{6}$/, "OTP must be 6 digits.");
-
-export const requestOtpBodySchema = z.object({
+export const loginBodySchema = z.object({
   phoneNumber: phoneNumberSchema,
-});
-
-export const verifyOtpBodySchema = z.object({
-  phoneNumber: phoneNumberSchema,
-  otp: otpCodeSchema,
+  displayName: z.string().trim().min(1, "Name is required.").max(40, "Name must be 40 characters or fewer."),
 });
 
 export const updateProfileBodySchema = z.object({
