@@ -8,9 +8,9 @@ import { useInView } from "../hooks/useInView.ts";
 
 const STEPS = [
   {
-    title: "Verify with OTP",
+    title: "Sign In",
     description:
-      "Enter your mobile number and confirm the 6-digit code sent to you. No passwords, no accounts.",
+      "Enter your mobile number and name to start voting. No passwords, no accounts.",
   },
   {
     title: "Browse & Vote",
@@ -28,7 +28,7 @@ const FEATURES = [
   {
     title: "Passwordless & Secure",
     description:
-      "No accounts or passwords to create — your identity is verified with a mobile OTP.",
+      "No accounts or passwords to create — just your mobile number and name.",
     big: true,
     icon: (
       <path
@@ -141,7 +141,7 @@ export function Landing() {
               </h1>
 
               <p className="mx-auto mt-5 max-w-lg text-[color:var(--text-muted)] lg:mx-0">
-                One phone number, one OTP, one vote. Walk every booth, weigh
+                One phone number, one name, one vote. Walk every booth, weigh
                 every idea, and decide who takes the trophy this year.
               </p>
 
@@ -218,9 +218,9 @@ export function Landing() {
                     </p>
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-primary-500">3m</p>
+                    <p className="text-2xl font-bold text-primary-500">1</p>
                     <p className="mt-0.5 text-xs uppercase tracking-wide text-[color:var(--text-tertiary)]">
-                      OTP Validity
+                      Step Sign-In
                     </p>
                   </div>
                 </div>
@@ -349,8 +349,8 @@ export function Landing() {
                 Ready to make your voice heard?
               </h2>
               <p className="mx-auto mt-2 max-w-md text-sm text-[color:var(--text-muted)]">
-                Verify your number, browse the booths, and cast your one vote
-                before voting closes.
+                Sign in with your number, browse the booths, and cast your one
+                vote before voting closes.
               </p>
               <Link
                 to="/projects"
