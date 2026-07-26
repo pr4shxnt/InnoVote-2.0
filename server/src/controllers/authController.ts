@@ -15,11 +15,8 @@ export const loginHandler = asyncHandler(async (req: Request, res: Response) => 
   try {
     user = await UserModel.findOneAndUpdate(
       { phoneNumber: normalizedPhoneNumber },
-      {
-        $setOnInsert: { phoneNumber: normalizedPhoneNumber },
-        $set: { displayName, hasSetDisplayName: true },
-      },
-      { upsert: true, new: true },
+      { $set: { displayName, hasSetDisplayName: true } },
+      { upsert: true, new: true, setDefaultsOnInsert: true },
     );
   } catch (err) {
     if (typeof err === "object" && err !== null && "code" in err && (err as { code: unknown }).code === 11000) {
@@ -35,13 +32,6 @@ export const loginHandler = asyncHandler(async (req: Request, res: Response) => 
   }
   if (user.status === "BLOCKED") {
     throw new ApiError(403, "This number is blocked from voting.");
-  }
-
-  // Always keep the name up to date when they log in.
-  if (user.displayName !== displayName) {
-    user.displayName = displayName;
-    user.hasSetDisplayName = true;
-    await user.save();
   }
 
   const token = signVoterToken({ sub: user._id.toString(), phoneNumber: user.phoneNumber });
