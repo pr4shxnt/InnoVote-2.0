@@ -42,12 +42,21 @@ export async function castVote(
     throw new ApiError(409, "You have already voted.");
   }
 
-  await VoteModel.create({
-    roundId: round._id,
-    projectId: project._id,
-    voterPhoneNumber: input.phoneNumber,
-    ipAddress: input.ipAddress,
-  });
+  try {
+    await VoteModel.create({
+      roundId: round._id,
+      projectId: project._id,
+      voterPhoneNumber: input.phoneNumber,
+      ipAddress: input.ipAddress,
+    });
+  } catch (err) {
+    if (typeof err === "object" && err !== null && "code" in err && (err as { code: unknown }).code === 11000) {
+      // The user-level guard above already marked hasVoted — a Vote row for this
+      // round/phone existing already means the vote was already recorded elsewhere.
+      throw new ApiError(409, "You have already voted.");
+    }
+    throw err;
+  }
 
   return project;
 }

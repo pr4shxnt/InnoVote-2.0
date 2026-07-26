@@ -37,12 +37,21 @@ export async function castPaperVote(input: CastPaperVoteInput): Promise<Hydrated
     throw new ApiError(409, "You have already voted for a research paper.");
   }
 
-  await ResearchPaperVoteModel.create({
-    roundId: round._id,
-    paperId: paper._id,
-    voterPhoneNumber: input.phoneNumber,
-    ipAddress: input.ipAddress,
-  });
+  try {
+    await ResearchPaperVoteModel.create({
+      roundId: round._id,
+      paperId: paper._id,
+      voterPhoneNumber: input.phoneNumber,
+      ipAddress: input.ipAddress,
+    });
+  } catch (err) {
+    if (typeof err === "object" && err !== null && "code" in err && (err as { code: unknown }).code === 11000) {
+      // The user-level guard above already marked hasVotedPaper — a vote row for this
+      // round/phone existing already means the vote was already recorded elsewhere.
+      throw new ApiError(409, "You have already voted for a research paper.");
+    }
+    throw err;
+  }
 
   return paper;
 }

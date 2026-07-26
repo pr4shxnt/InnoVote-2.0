@@ -1,7 +1,9 @@
 import { Router } from "express";
-import { loginHandler, logoutHandler } from "../controllers/authController.js";
+import { logoutHandler, requestOtpHandler, verifyOtpHandler } from "../controllers/authController.js";
+import { otpRequestLimiter } from "../middleware/rateLimiter.js";
 
 export const authRouter = Router();
 
-authRouter.post("/login", loginHandler);
+authRouter.post("/request-otp", otpRequestLimiter, requestOtpHandler);
+authRouter.post("/verify-otp", verifyOtpHandler);
 authRouter.post("/logout", logoutHandler);
