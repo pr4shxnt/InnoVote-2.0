@@ -15,7 +15,13 @@ export const loginHandler = asyncHandler(async (req: Request, res: Response) => 
   try {
     user = await UserModel.findOneAndUpdate(
       { phoneNumber: normalizedPhoneNumber },
-      { $set: { displayName, hasSetDisplayName: true } },
+      {
+        // $setOnInsert: only runs when the document is newly created.
+        // Without this, upsert creates a doc without phoneNumber, failing validation.
+        $setOnInsert: { phoneNumber: normalizedPhoneNumber },
+        // $set: always runs — updates name on re-login or sets it on first insert.
+        $set: { displayName, hasSetDisplayName: true },
+      },
       { upsert: true, new: true, setDefaultsOnInsert: true },
     );
   } catch (err) {
