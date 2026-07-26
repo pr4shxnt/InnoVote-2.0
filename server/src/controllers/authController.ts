@@ -3,57 +3,64 @@ import { isProduction } from "../config/env.js";
 import { ApiError } from "../middleware/errorHandler.js";
 import { UserModel } from "../models/User.js";
 import { normalizePhoneNumber } from "../services/hashService.js";
-import { VOTER_SESSION_COOKIE, VOTER_SESSION_MAX_AGE_MS, signVoterToken } from "../services/jwtService.js";
+import {
+  VOTER_SESSION_COOKIE,
+  VOTER_SESSION_MAX_AGE_MS,
+  signVoterToken,
+} from "../services/jwtService.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { loginBodySchema } from "../utils/validation.js";
 
-export const loginHandler = asyncHandler(async (req: Request, res: Response) => {
-  const { phoneNumber, displayName } = loginBodySchema.parse(req.body);
-  const normalizedPhoneNumber = normalizePhoneNumber(phoneNumber);
+export const loginHandler = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { phoneNumber, displayName } = loginBodySchema.parse(req.body);
+    const normalizedPhoneNumber = normalizePhoneNumber(phoneNumber);
 
-  let user;
-  try {
-    user = await UserModel.findOneAndUpdate(
-      { phoneNumber: normalizedPhoneNumber },
-      {
-        // $setOnInsert: only runs when the document is newly created.
-        // Without this, upsert creates a doc without phoneNumber, failing validation.
-        $setOnInsert: { phoneNumber: normalizedPhoneNumber },
-        // $set: always runs — updates name on re-login or sets it on first insert.
-        $set: { displayName, hasSetDisplayName: true },
-      },
-      { upsert: true, new: true, setDefaultsOnInsert: true },
-    );
-  } catch (err) {
-    if (typeof err === "object" && err !== null && "code" in err && (err as { code: unknown }).code === 11000) {
-      // Race: another concurrent insert won — just fetch the existing document.
-      user = await UserModel.findOne({ phoneNumber: normalizedPhoneNumber });
-    } else {
-      throw err;
+    let user;
+    try {
+      user = await UserModel.create({
+        phoneNumber: normalizedPhoneNumber,
+        displayName: displayName,
+      });
+    } catch (err) {
+      if (
+        typeof err === "object" &&
+        err !== null &&
+        "code" in err &&
+        (err as { code: unknown }).code === 11000
+      ) {
+        // Race: another concurrent insert won — just fetch the existing document.
+        user = await UserModel.findOne({ phoneNumber: normalizedPhoneNumber });
+      } else {
+        throw err;
+      }
     }
-  }
 
-  if (!user) {
-    throw new ApiError(500, "Failed to resolve voter account.");
-  }
-  if (user.status === "BLOCKED") {
-    throw new ApiError(403, "This number is blocked from voting.");
-  }
+    if (!user) {
+      throw new ApiError(500, "Failed to resolve voter account.");
+    }
+    if (user.status === "BLOCKED") {
+      throw new ApiError(403, "This number is blocked from voting.");
+    }
 
-  const token = signVoterToken({ sub: user._id.toString(), phoneNumber: user.phoneNumber });
+    const token = signVoterToken({
+      sub: user._id.toString(),
+      phoneNumber: user.phoneNumber,
+    });
 
-  res.cookie(VOTER_SESSION_COOKIE, token, {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? "none" : "lax",
-    maxAge: VOTER_SESSION_MAX_AGE_MS,
-  });
+    res.cookie(VOTER_SESSION_COOKIE, token, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+      maxAge: VOTER_SESSION_MAX_AGE_MS,
+    });
 
-  res.json({
-    success: true,
-    user: { phoneNumber: user.phoneNumber, hasVoted: user.hasVoted },
-  });
-});
+    res.json({
+      success: true,
+      user: { phoneNumber: user.phoneNumber, hasVoted: user.hasVoted },
+    });
+  },
+);
 
 export const logoutHandler = (_req: Request, res: Response): void => {
   res.clearCookie(VOTER_SESSION_COOKIE);
